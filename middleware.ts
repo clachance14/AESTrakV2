@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { SUPABASE_ACCESS_TOKEN_COOKIE } from '@/features/auth/constants';
+const SUPABASE_ACCESS_TOKEN_COOKIE = 'sb-access-token';
 
 const AUTH_ROUTE_PREFIXES = ['/login', '/signup', '/invite'];
 const PROTECTED_ROUTE_PREFIXES = [
