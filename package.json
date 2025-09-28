@@ -15,13 +15,20 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "db:generate-types": "./scripts/db-generate-types.sh",
-    "db:migrate": "./scripts/db-migrate.sh"
+    "db:migrate": "./scripts/db-migrate.sh",
+    "fetch:comengy": "DISPLAY=:100 tsx scripts/fetch-comengy-files.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
+    "@types/uuid": "^10.0.0",
     "next": "15.5.4",
+    "pg": "^8.16.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
+    "recharts": "^3.2.1",
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -40,7 +47,9 @@
     "jsdom": "^27.0.0",
     "lint-staged": "^16.2.1",
     "prettier": "^3.6.2",
+    "puppeteer": "^23.11.1",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5",
     "vitest": "^3.2.4"
   },

@@ -1,0 +1,75 @@
+name: Test Comengy Download
+
+on:
+  workflow_dispatch:  # Manual trigger only for testing
+
+jobs:
+  download-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libatk1.0-0 \
+            libatk-bridge2.0-0 \
+            libcups2 \
+            libdrm2 \
+            libxkbcommon0 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxfixes3 \
+            libxrandr2 \
+            libgbm1 \
+            libasound2 \
+            libpangocairo-1.0-0 \
+            libgtk-3-0
+
+      - name: Run Comengy download script
+        env:
+          COMENGY_USERNAME: ${{ secrets.COMENGY_USERNAME }}
+          COMENGY_PASSWORD: ${{ secrets.COMENGY_PASSWORD }}
+        run: npm run fetch:comengy
+        continue-on-error: true  # Don't fail the workflow if script fails
+
+      - name: List downloaded files
+        run: |
+          echo "Files in Downloads directory:"
+          ls -lh ~/Downloads/ || echo "Downloads directory not found"
+          echo ""
+          echo "Looking for DOWREAD-ICS files:"
+          find ~ -name "DOWREAD-ICS*.xlsx" -mmin -10 2>/dev/null || echo "No files found"
+
+      - name: Upload downloaded files as artifacts
+        uses: actions/upload-artifact@v4
+        if: always()  # Upload even if previous steps failed
+        with:
+          name: comengy-downloads
+          path: |
+            ~/Downloads/DOWREAD-ICS*.xlsx
+            debug-*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload debug screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: debug-screenshots
+          path: debug-*.png
+          if-no-files-found: ignore
+          retention-days: 7
