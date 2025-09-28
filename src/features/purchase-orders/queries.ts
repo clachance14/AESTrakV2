@@ -209,6 +209,7 @@ export const getTopPOsBySpending = cache(
 
 export type POFinancialSummary = {
   totalOrderValue: number;
+  totalSpent: number;
   totalRemainingBudget: number;
 };
 
@@ -237,37 +238,45 @@ export const getPOFinancialSummary = cache(
       }
     }
 
-    const query = supabase
+    const poQuery = supabase
       .from('purchase_orders')
-      .select('order_value, remaining_budget')
+      .select('order_value, total_spent, remaining_budget')
       .eq('organization_id', organizationId);
 
     if (rangeStart) {
-      query.gte('start_date', rangeStart.toISOString());
+      poQuery.gte('start_date', rangeStart.toISOString());
     }
 
     if (rangeEndExclusive) {
-      query.lt('start_date', rangeEndExclusive.toISOString());
+      poQuery.lt('start_date', rangeEndExclusive.toISOString());
     }
 
-    const { data, error } = await query;
+    const { data: poData, error: poError } = await poQuery;
 
-    if (error) {
-      throw new Error(error.message);
+    if (poError) {
+      throw new Error(poError.message);
     }
 
-    if (!data) {
+    if (!poData || poData.length === 0) {
       return {
         totalOrderValue: 0,
+        totalSpent: 0,
         totalRemainingBudget: 0,
       };
     }
 
-    const totalOrderValue = data.reduce((sum, po) => sum + po.order_value, 0);
-    const totalRemainingBudget = data.reduce((sum, po) => sum + po.remaining_budget, 0);
+    const totalOrderValue = poData.reduce((sum, po) => sum + (po.order_value ?? 0), 0);
+    const totalSpent = poData.reduce((sum, po) => sum + (po.total_spent ?? 0), 0);
+    const totalRemainingBudget = poData.reduce((sum, po) => {
+      const remaining =
+        po.remaining_budget ?? Math.max((po.order_value ?? 0) - (po.total_spent ?? 0), 0);
+
+      return sum + remaining;
+    }, 0);
 
     return {
       totalOrderValue,
+      totalSpent,
       totalRemainingBudget,
     };
   },
