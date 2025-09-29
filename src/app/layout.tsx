@@ -24,6 +24,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (typeof process !== 'undefined') {
+    // Helps verify the runtime environment in production logs.
+    console.log('[RootLayout] runtime', process.env.NEXT_RUNTIME, typeof __dirname);
+  }
+
   return (
     <html lang="en">
       <body

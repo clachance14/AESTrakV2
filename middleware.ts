@@ -34,6 +34,8 @@ function isProtectedRoute(pathname: string) {
 }
 
 export function middleware(request: NextRequest) {
+  console.log('[Middleware] runtime', process.env.NEXT_RUNTIME);
+
   const { nextUrl } = request;
   const { pathname } = nextUrl;
 
