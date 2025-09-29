@@ -6,8 +6,6 @@ import { OrganizationMembersTable } from '@/features/organizations/components/or
 import { getActiveOrganization, getOrganizationMembers } from '@/features/organizations/queries';
 import { SettingsTabs } from '@/features/settings/components/settings-tabs';
 
-export const runtime = 'nodejs';
-
 export const metadata: Metadata = {
   title: 'Organization settings – AESTrak',
 };

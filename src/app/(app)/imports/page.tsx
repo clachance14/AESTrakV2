@@ -6,8 +6,6 @@ import { ImportUploadForm } from '@/features/imports/components/ImportUploadForm
 import { getImportJobsForOrganization } from '@/features/imports/queries';
 import { getActiveOrganization } from '@/features/organizations/queries';
 
-export const runtime = 'nodejs';
-
 export const metadata: Metadata = {
   title: 'Import Data – AESTrak',
 };

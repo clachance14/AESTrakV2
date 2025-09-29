@@ -14,8 +14,6 @@ import {
 import { getBillingTrendForOrganization } from '@/features/quantity-surveys/queries';
 import { formatDate } from '@/libs/formatters';
 
-export const runtime = 'nodejs';
-
 type DashboardSearchParams =
   | Record<string, string | string[] | undefined>
   | Promise<Record<string, string | string[] | undefined>>

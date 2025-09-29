@@ -3,8 +3,6 @@ import type { Metadata } from 'next';
 import { AuthShell } from '@/features/auth/components/auth-shell';
 import { SignupForm } from '@/features/auth/components/signup-form';
 
-export const runtime = 'nodejs';
-
 export const metadata: Metadata = {
   title: 'Create account – AESTrak',
 };

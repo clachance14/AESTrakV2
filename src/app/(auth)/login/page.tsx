@@ -6,8 +6,6 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { LoginForm } from '@/features/auth/components/login-form';
 import { SUPABASE_ACCESS_TOKEN_COOKIE } from '@/features/auth/constants';
 
-export const runtime = 'nodejs';
-
 export const metadata: Metadata = {
   title: 'Sign in – AESTrak',
 };

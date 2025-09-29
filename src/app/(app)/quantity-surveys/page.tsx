@@ -25,8 +25,6 @@ import { buildFilterOptions, filterMatchesValue } from '@/libs/filter-utils';
 import { formatCurrency, formatDate } from '@/libs/formatters';
 import { isSortDirection, type SortDirection } from '@/libs/sorting';
 
-export const runtime = 'nodejs';
-
 export const metadata: Metadata = {
   title: 'Quantity surveys – AESTrak',
 };
