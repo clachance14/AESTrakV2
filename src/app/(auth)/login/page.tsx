@@ -12,8 +12,9 @@ export const metadata: Metadata = {
   title: 'Sign in – AESTrak',
 };
 
-export default function LoginPage() {
-  const sessionCookie = cookies().get(SUPABASE_ACCESS_TOKEN_COOKIE)?.value;
+export default async function LoginPage() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(SUPABASE_ACCESS_TOKEN_COOKIE)?.value;
 
   if (sessionCookie) {
     redirect('/dashboard');
