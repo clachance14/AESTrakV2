@@ -104,13 +104,13 @@ This sitemap reflects the routes defined in the PRD (see §5) and the technical 
 ### `/settings/profile`
 
 - **Auth**: Authenticated (Admin + Member)
-- **Purpose**: Update display name, MFA, notification preferences.
-- **States**: Form loading, success toast, validation errors.
+- **Purpose**: Update display name, optional phone, and timezone preferences.
+- **States**: Form validation errors, update confirmation, session expiry redirect.
 
 ### `/settings/organization`
 
 - **Auth**: Authenticated (Admin-only)
-- **Purpose**: Manage users (invite, deactivate, role change), view audit entries.
+- **Purpose**: Manage users (invite, deactivate), view audit entries.
 - **States**: Invite form validation, empty user list (beyond admin), error fetching members.
 
 ### `/settings/billing`

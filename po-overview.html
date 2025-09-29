@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AESTrak - Dow Purchase Orders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      color: #64748b;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+
+    nav a:hover {
+      background: #e0e7ff;
+      color: #1d4ed8;
+    }
+
+    nav a.active {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .breadcrumbs {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 1.25rem;
+    }
+
+    .page-title {
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 0.75rem;
+      border: 1px solid #e2e8f0;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .summary-card span {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .summary-card strong {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .summary-card small {
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .table-wrapper {
+      background: white;
+      border-radius: 0.75rem;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: #eef2ff;
+      text-transform: uppercase;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+
+    th {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: #475569;
+    }
+
+    td.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .status-processing { background: #fefce8; color: #92400e; }
+    .status-imported { background: #dbeafe; color: #1d4ed8; }
+    .status-completed { background: #dcfce7; color: #166534; }
+    .status-rejected { background: #fee2e2; color: #b91c1c; }
+    .status-sap { background: #e2e8f0; color: #334155; }
+
+    .footer-note {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: right;
+    }
+
+    @media (max-width: 1024px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      nav {
+        flex-wrap: wrap;
+      }
+
+      main {
+        padding: 1.25rem;
+      }
+
+      th, td {
+        padding: 0.65rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-left">
+        <div class="logo">AESTrak</div>
+        <nav>
+          <a href="dashboard-mockup.html">Dashboard</a>
+          <a href="po-overview.html" class="active">Dow POs</a>
+          <a href="#">QS Billings</a>
+          <a href="#">Reports</a>
+          <a href="#">Settings</a>
+        </nav>
+      </div>
+      <div style="background:#f1f5f9;padding:0.5rem 1rem;border-radius:999px;font-size:0.85rem;">
+        BuildTech Contractors Inc.
+      </div>
+    </header>
+    <main>
+      <div class="breadcrumbs">Dashboard / Dow Purchase Orders</div>
+      <div class="page-title">
+        <h1>Dow Purchase Orders</h1>
+        <p>Most recent 100 purchase orders imported from Supabase. Figures shown in USD.</p>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span>Total purchase orders</span>
+          <strong>100</strong>
+          <small>Latest records by import order</small>
+        </div>
+        <div class="summary-card">
+          <span>Processing</span>
+          <strong>54</strong>
+          <small>Awaiting completion or QS reconciliation</small>
+        </div>
+        <div class="summary-card">
+          <span>Average utilization</span>
+          <strong>71.5%</strong>
+          <small>Across latest import window</small>
+        </div>
+        <div class="summary-card">
+          <span>POs &ge; 90% utilized</span>
+          <strong>46</strong>
+          <small>Monitor for change orders</small>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>PO Number</th>
+              <th>Status</th>
+              <th>Authorized</th>
+              <th>Billed</th>
+              <th>Remaining</th>
+              <th>Utilization</th>
+              <th>Vendor</th>
+              <th>Coordinator</th>
+              <th>Start</th>
+              <th>Completion</th>
+            </tr>
+          </thead>
+          <tbody>
+      <tr><td>6500008279.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$61,155.78</td><td class='numeric'>$63,396.63</td><td class='numeric'>$0.00</td><td class='numeric'>103.66%</td><td>—</td><td>Goolsby, Ronald</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008279.00002</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$49,414.66</td><td class='numeric'>$24,045.85</td><td class='numeric'>$25,368.81</td><td class='numeric'>48.66%</td><td>—</td><td>Goolsby, Ronald</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008281.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$6,352.62</td><td class='numeric'>$6,352.62</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-06-04</td><td>2025-06-04</td></tr>
+      <tr><td>6500008282.00001</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$3,391.20</td><td class='numeric'>$2,939.33</td><td class='numeric'>$451.87</td><td class='numeric'>86.68%</td><td>ICS Inc.</td><td>?</td><td>2024-06-04</td><td>2025-06-04</td></tr>
+      <tr><td>6500008290.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$218,640.56</td><td class='numeric'>$217,214.52</td><td class='numeric'>$1,426.04</td><td class='numeric'>99.35%</td><td>ICS Inc.</td><td>?</td><td>2024-06-05</td><td>2025-06-05</td></tr>
+      <tr><td>6500007224.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$95,095.98</td><td class='numeric'>$94,493.05</td><td class='numeric'>$602.93</td><td class='numeric'>99.37%</td><td>ICS Inc.</td><td>?</td><td>2024-03-26</td><td>2025-03-26</td></tr>
+      <tr><td>6500007230.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$99,181.69</td><td class='numeric'>$72,795.84</td><td class='numeric'>$26,385.85</td><td class='numeric'>73.40%</td><td>ICS Inc.</td><td>?</td><td>2024-03-27</td><td>2025-03-27</td></tr>
+      <tr><td>6500007217.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$30,010.30</td><td class='numeric'>$29,245.44</td><td class='numeric'>$764.86</td><td class='numeric'>97.45%</td><td>ICS Inc.</td><td>Edwards, Kristophoker (K)</td><td>2024-03-26</td><td>2025-03-26</td></tr>
+      <tr><td>6500007211.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$4,305.68</td><td class='numeric'>$694.32</td><td class='numeric'>86.11%</td><td>ICS Inc.</td><td>?</td><td>2024-03-26</td><td>2025-03-26</td></tr>
+      <tr><td>6500008954.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$14,168.78</td><td class='numeric'>$9,728.45</td><td class='numeric'>$4,440.33</td><td class='numeric'>68.66%</td><td>ICS Inc.</td><td>?</td><td>2024-07-18</td><td>2025-07-18</td></tr>
+      <tr><td>6500009054.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$30,024.96</td><td class='numeric'>$26,401.78</td><td class='numeric'>$3,623.18</td><td class='numeric'>87.93%</td><td>ICS Inc.</td><td>?</td><td>2024-07-24</td><td>2025-07-24</td></tr>
+      <tr><td>9999999126.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$100,000,000.00</td><td class='numeric'>$0.00</td><td class='numeric'>$100,000,000.00</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>McGrew, Ashley</td><td>—</td><td>—</td></tr>
+      <tr><td>6500009020.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$16,361.30</td><td class='numeric'>$16,361.30</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-07-23</td><td>2025-07-23</td></tr>
+      <tr><td>6500009028.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$50.00</td><td class='numeric'>$50.00</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>—</td><td>?</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008963.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$52,699.18</td><td class='numeric'>$39,059.30</td><td class='numeric'>$13,639.88</td><td class='numeric'>74.12%</td><td>ICS Inc.</td><td>?</td><td>2024-07-18</td><td>2025-07-18</td></tr>
+      <tr><td>6500009004.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$12,705.42</td><td class='numeric'>$5,861.02</td><td class='numeric'>$6,844.40</td><td class='numeric'>46.13%</td><td>ICS Inc.</td><td>?</td><td>2024-07-22</td><td>2025-07-22</td></tr>
+      <tr><td>6500009023.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$28,838.69</td><td class='numeric'>$28,765.79</td><td class='numeric'>$72.90</td><td class='numeric'>99.75%</td><td>ICS Inc.</td><td>?</td><td>2024-07-23</td><td>2025-07-23</td></tr>
+      <tr><td>6500007845.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$11,950.80</td><td class='numeric'>$11,750.79</td><td class='numeric'>$200.01</td><td class='numeric'>98.33%</td><td>ICS Inc.</td><td>?</td><td>2024-04-30</td><td>2025-04-30</td></tr>
+      <tr><td>6500007840.00001</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$84,324.44</td><td class='numeric'>$55,080.97</td><td class='numeric'>$29,243.47</td><td class='numeric'>65.32%</td><td>ICS Inc.</td><td>?</td><td>2024-04-30</td><td>2025-04-30</td></tr>
+      <tr><td>6500007820.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$4,754.94</td><td class='numeric'>$245.06</td><td class='numeric'>95.10%</td><td>ICS Inc.</td><td>?</td><td>2024-04-29</td><td>2025-04-29</td></tr>
+      <tr><td>6500007841.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$123,977.78</td><td class='numeric'>$87,775.22</td><td class='numeric'>$36,202.56</td><td class='numeric'>70.80%</td><td>ICS Inc.</td><td>?</td><td>2024-04-30</td><td>2025-04-30</td></tr>
+      <tr><td>6500007794.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$563,847.08</td><td class='numeric'>$564,048.78</td><td class='numeric'>$0.00</td><td class='numeric'>100.04%</td><td>ICS Inc.</td><td>?</td><td>2024-04-26</td><td>2025-04-26</td></tr>
+      <tr><td>6500007853.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$337,810.32</td><td class='numeric'>$337,810.29</td><td class='numeric'>$0.03</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-05-01</td><td>2025-05-01</td></tr>
+      <tr><td>6500008236.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$15,692.84</td><td class='numeric'>$15,692.84</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>—</td><td>Celeste Little</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008236.00002</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$1,931.86</td><td class='numeric'>$1,931.86</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>—</td><td>Celeste Little</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008222.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$27,731.76</td><td class='numeric'>$23,146.43</td><td class='numeric'>$4,585.33</td><td class='numeric'>83.47%</td><td>ICS Inc.</td><td>?</td><td>2024-05-30</td><td>2025-05-30</td></tr>
+      <tr><td>6500008221.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$4,938.17</td><td class='numeric'>$61.83</td><td class='numeric'>98.76%</td><td>ICS Inc.</td><td>?</td><td>2024-05-30</td><td>2025-05-30</td></tr>
+      <tr><td>6500008200.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$10,000.46</td><td class='numeric'>$15,584.89</td><td class='numeric'>$0.00</td><td class='numeric'>155.84%</td><td>ICS Inc.</td><td>?</td><td>2024-05-29</td><td>2025-05-29</td></tr>
+      <tr><td>6500008232.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$8,232.22</td><td class='numeric'>$8,232.22</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-05-31</td><td>2025-05-31</td></tr>
+      <tr><td>6500008185.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$3,117.62</td><td class='numeric'>$1,882.38</td><td class='numeric'>62.35%</td><td>ICS Inc.</td><td>?</td><td>2024-05-28</td><td>2025-05-28</td></tr>
+      <tr><td>6500008173.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$77,054.02</td><td class='numeric'>$76,854.02</td><td class='numeric'>$200.00</td><td class='numeric'>99.74%</td><td>ICS Inc.</td><td>?</td><td>2024-05-27</td><td>2025-05-27</td></tr>
+      <tr><td>6500008178.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$7,965.46</td><td class='numeric'>$7,825.01</td><td class='numeric'>$140.45</td><td class='numeric'>98.24%</td><td>ICS Inc.</td><td>?</td><td>2024-05-28</td><td>2025-05-28</td></tr>
+      <tr><td>6500008191.00001</td><td><span class='status-badge status-sap'>SAP canceled</span></td><td class='numeric'>$25,440.56</td><td class='numeric'>$0.00</td><td class='numeric'>$25,440.56</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-05-28</td><td>2025-05-28</td></tr>
+      <tr><td>6500008179.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$4,340.24</td><td class='numeric'>$659.76</td><td class='numeric'>86.80%</td><td>ICS Inc.</td><td>?</td><td>2024-05-28</td><td>2025-05-28</td></tr>
+      <tr><td>6500008194.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$3,633.74</td><td class='numeric'>$1,366.26</td><td class='numeric'>72.67%</td><td>ICS Inc.</td><td>?</td><td>2024-05-29</td><td>2025-05-29</td></tr>
+      <tr><td>6500008193.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$69,017.11</td><td class='numeric'>$48,397.12</td><td class='numeric'>$20,619.99</td><td class='numeric'>70.12%</td><td>ICS Inc.</td><td>?</td><td>2024-05-29</td><td>2025-05-29</td></tr>
+      <tr><td>6500008195.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$6,588.61</td><td class='numeric'>$6,388.61</td><td class='numeric'>$200.00</td><td class='numeric'>96.96%</td><td>ICS Inc.</td><td>?</td><td>2024-05-29</td><td>2025-05-29</td></tr>
+      <tr><td>6500008885.00001</td><td><span class='status-badge status-sap'>SAP canceled</span></td><td class='numeric'>$20,136.13</td><td class='numeric'>$0.00</td><td class='numeric'>$20,136.13</td><td class='numeric'>0.00%</td><td>—</td><td>?</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008885.00002</td><td><span class='status-badge status-sap'>SAP canceled</span></td><td class='numeric'>$20,136.13</td><td class='numeric'>$0.00</td><td class='numeric'>$20,136.13</td><td class='numeric'>0.00%</td><td>—</td><td>?</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008885.00003</td><td><span class='status-badge status-sap'>SAP canceled</span></td><td class='numeric'>$20,136.13</td><td class='numeric'>$0.00</td><td class='numeric'>$20,136.13</td><td class='numeric'>0.00%</td><td>—</td><td>?</td><td>—</td><td>—</td></tr>
+      <tr><td>6500008886.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$25,000.00</td><td class='numeric'>$0.00</td><td class='numeric'>$25,000.00</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-07-15</td><td>2025-07-15</td></tr>
+      <tr><td>6500008909.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$80,299.37</td><td class='numeric'>$65,625.36</td><td class='numeric'>$14,674.01</td><td class='numeric'>81.73%</td><td>ICS Inc.</td><td>?</td><td>2024-07-16</td><td>2025-07-16</td></tr>
+      <tr><td>6500008894.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$4,272.28</td><td class='numeric'>$4,072.28</td><td class='numeric'>$200.00</td><td class='numeric'>95.32%</td><td>ICS Inc.</td><td>?</td><td>2024-07-15</td><td>2025-07-15</td></tr>
+      <tr><td>6500008899.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$350,000.00</td><td class='numeric'>$307,669.96</td><td class='numeric'>$42,330.04</td><td class='numeric'>87.91%</td><td>ICS Inc.</td><td>?</td><td>2024-07-15</td><td>2025-07-15</td></tr>
+      <tr><td>6500008900.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$250,000.00</td><td class='numeric'>$249,471.97</td><td class='numeric'>$528.03</td><td class='numeric'>99.79%</td><td>ICS Inc.</td><td>?</td><td>2024-07-15</td><td>2025-07-15</td></tr>
+      <tr><td>6500008911.00001</td><td><span class='status-badge status-sap'>SAP canceled</span></td><td class='numeric'>$18,844.66</td><td class='numeric'>$0.00</td><td class='numeric'>$18,844.66</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-07-16</td><td>2025-07-16</td></tr>
+      <tr><td>6500008917.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$18,844.66</td><td class='numeric'>$7,215.98</td><td class='numeric'>$11,628.68</td><td class='numeric'>38.29%</td><td>ICS Inc.</td><td>?</td><td>2024-07-16</td><td>2025-07-16</td></tr>
+      <tr><td>6500008918.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$18,844.66</td><td class='numeric'>$10,798.65</td><td class='numeric'>$8,046.01</td><td class='numeric'>57.30%</td><td>ICS Inc.</td><td>?</td><td>2024-07-16</td><td>2025-07-16</td></tr>
+      <tr><td>6500007753.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$6,930.79</td><td class='numeric'>$6,562.50</td><td class='numeric'>$368.29</td><td class='numeric'>94.69%</td><td>ICS Inc.</td><td>?</td><td>2024-04-24</td><td>2025-04-24</td></tr>
+      <tr><td>6500007673.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$274,749.12</td><td class='numeric'>$272,910.99</td><td class='numeric'>$1,838.13</td><td class='numeric'>99.33%</td><td>ICS Inc.</td><td>?</td><td>2024-04-19</td><td>2025-04-19</td></tr>
+      <tr><td>6500007700.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$4,500.00</td><td class='numeric'>$3,163.06</td><td class='numeric'>$1,336.94</td><td class='numeric'>70.29%</td><td>ICS Inc.</td><td>?</td><td>2024-04-22</td><td>2025-04-22</td></tr>
+      <tr><td>6500007715.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$63,235.80</td><td class='numeric'>$63,235.80</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>—</td><td>Goolsby, Ronald</td><td>—</td><td>—</td></tr>
+      <tr><td>6500007715.00002</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$14,190.43</td><td class='numeric'>$14,190.43</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>—</td><td>Goolsby, Ronald</td><td>—</td><td>—</td></tr>
+      <tr><td>6500007717.00001</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$9,800.00</td><td class='numeric'>$6,314.11</td><td class='numeric'>$3,485.89</td><td class='numeric'>64.43%</td><td>ICS Inc.</td><td>?</td><td>2024-04-23</td><td>2025-04-23</td></tr>
+      <tr><td>6500007602.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$62,469.97</td><td class='numeric'>$16,084.88</td><td class='numeric'>$46,385.09</td><td class='numeric'>25.75%</td><td>ICS Inc.</td><td>?</td><td>2024-04-16</td><td>2025-04-16</td></tr>
+      <tr><td>6500007601.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$294,000.00</td><td class='numeric'>$271,722.75</td><td class='numeric'>$22,277.25</td><td class='numeric'>92.42%</td><td>ICS Inc.</td><td>?</td><td>2024-04-16</td><td>2025-04-16</td></tr>
+      <tr><td>6500007599.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$220,384.89</td><td class='numeric'>$205,150.46</td><td class='numeric'>$15,234.43</td><td class='numeric'>93.09%</td><td>ICS Inc.</td><td>York, Bruce</td><td>2024-04-16</td><td>2025-04-16</td></tr>
+      <tr><td>6500007626.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$74,286.36</td><td class='numeric'>$73,666.25</td><td class='numeric'>$620.11</td><td class='numeric'>99.17%</td><td>ICS Inc.</td><td>?</td><td>2024-04-17</td><td>2025-04-17</td></tr>
+      <tr><td>6500007634.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$30,004.44</td><td class='numeric'>$29,804.44</td><td class='numeric'>$200.00</td><td class='numeric'>99.33%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-04-17</td><td>2025-04-17</td></tr>
+      <tr><td>6500007637.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$38,360.70</td><td class='numeric'>$25,891.30</td><td class='numeric'>$12,469.40</td><td class='numeric'>67.49%</td><td>ICS Inc.</td><td>?</td><td>2024-04-18</td><td>2025-04-18</td></tr>
+      <tr><td>6500007653.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$12,762.99</td><td class='numeric'>$0.00</td><td class='numeric'>$12,762.99</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-04-19</td><td>2025-04-19</td></tr>
+      <tr><td>6500007627.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$8,654.59</td><td class='numeric'>$4,358.01</td><td class='numeric'>$4,296.58</td><td class='numeric'>50.35%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-04-17</td><td>2025-04-17</td></tr>
+      <tr><td>6500007625.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$1,539.43</td><td class='numeric'>$1,336.01</td><td class='numeric'>$203.42</td><td class='numeric'>86.79%</td><td>ICS Inc.</td><td>?</td><td>2024-04-17</td><td>2025-04-17</td></tr>
+      <tr><td>6500007649.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$57,110.44</td><td class='numeric'>$56,910.25</td><td class='numeric'>$200.19</td><td class='numeric'>99.65%</td><td>ICS Inc.</td><td>?</td><td>2024-04-18</td><td>2025-04-18</td></tr>
+      <tr><td>6500007650.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$366,213.94</td><td class='numeric'>$365,618.58</td><td class='numeric'>$595.36</td><td class='numeric'>99.84%</td><td>ICS Inc.</td><td>?</td><td>2024-04-18</td><td>2025-04-18</td></tr>
+      <tr><td>6500007624.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$2,570.80</td><td class='numeric'>$0.00</td><td class='numeric'>$2,570.80</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-04-17</td><td>2025-04-17</td></tr>
+      <tr><td>6500007596.00001</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$5,275.35</td><td class='numeric'>$5,075.35</td><td class='numeric'>$200.00</td><td class='numeric'>96.21%</td><td>ICS Inc.</td><td>?</td><td>2024-04-16</td><td>2025-04-16</td></tr>
+      <tr><td>6500008820.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$50,000.00</td><td class='numeric'>$46,544.69</td><td class='numeric'>$3,455.31</td><td class='numeric'>93.09%</td><td>ICS Inc.</td><td>?</td><td>2024-07-12</td><td>2025-07-12</td></tr>
+      <tr><td>6500008819.00001</td><td><span class='status-badge status-completed'>Completed</span></td><td class='numeric'>$12,062.40</td><td class='numeric'>$11,299.92</td><td class='numeric'>$762.48</td><td class='numeric'>93.68%</td><td>ICS Inc.</td><td>?</td><td>2024-07-12</td><td>2025-07-12</td></tr>
+      <tr><td>6500008484.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$13,376.72</td><td class='numeric'>$291.60</td><td class='numeric'>$13,085.12</td><td class='numeric'>2.18%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-06-18</td><td>2025-06-18</td></tr>
+      <tr><td>6500008272.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$13,910.20</td><td class='numeric'>$2,543.54</td><td class='numeric'>$11,366.66</td><td class='numeric'>18.29%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-06-04</td><td>2025-06-04</td></tr>
+      <tr><td>6500008733.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$7,998.52</td><td class='numeric'>$7,998.52</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-07-02</td><td>2025-07-02</td></tr>
+      <tr><td>6500008746.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$15,430.72</td><td class='numeric'>$15,230.72</td><td class='numeric'>$200.00</td><td class='numeric'>98.70%</td><td>ICS Inc.</td><td>York, Bruce</td><td>2024-07-03</td><td>2025-07-03</td></tr>
+      <tr><td>6500008141.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$665,492.49</td><td class='numeric'>$665,126.47</td><td class='numeric'>$366.02</td><td class='numeric'>99.95%</td><td>ICS Inc.</td><td>?</td><td>2024-05-22</td><td>2025-05-22</td></tr>
+      <tr><td>6500008156.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$12,496.69</td><td class='numeric'>$0.00</td><td class='numeric'>$12,496.69</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-05-23</td><td>2025-05-23</td></tr>
+      <tr><td>6500008124.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$3,600.00</td><td class='numeric'>$2,776.25</td><td class='numeric'>$823.75</td><td class='numeric'>77.12%</td><td>ICS Inc.</td><td>York, Bruce</td><td>2024-05-21</td><td>2025-05-21</td></tr>
+      <tr><td>6500008126.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$63,482.64</td><td class='numeric'>$63,282.60</td><td class='numeric'>$200.04</td><td class='numeric'>99.68%</td><td>ICS Inc.</td><td>?</td><td>2024-05-21</td><td>2025-05-21</td></tr>
+      <tr><td>6500008130.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$2,227.03</td><td class='numeric'>$2,772.97</td><td class='numeric'>44.54%</td><td>ICS Inc.</td><td>?</td><td>2024-05-21</td><td>2025-05-21</td></tr>
+      <tr><td>6500008152.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$3,387.99</td><td class='numeric'>$1,612.01</td><td class='numeric'>67.76%</td><td>ICS Inc.</td><td>?</td><td>2024-05-23</td><td>2025-05-23</td></tr>
+      <tr><td>6500008151.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$3,376.73</td><td class='numeric'>$1,623.27</td><td class='numeric'>67.53%</td><td>ICS Inc.</td><td>?</td><td>2024-05-23</td><td>2025-05-23</td></tr>
+      <tr><td>6500008142.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$15,778.32</td><td class='numeric'>$12,435.04</td><td class='numeric'>$3,343.28</td><td class='numeric'>78.81%</td><td>ICS Inc.</td><td>Peters, James</td><td>2024-05-22</td><td>2025-05-22</td></tr>
+      <tr><td>6500008162.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$4,561.20</td><td class='numeric'>$438.80</td><td class='numeric'>91.22%</td><td>ICS Inc.</td><td>?</td><td>2024-05-23</td><td>2025-05-23</td></tr>
+      <tr><td>6500008622.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$3,900.00</td><td class='numeric'>$2,380.42</td><td class='numeric'>$1,519.58</td><td class='numeric'>61.04%</td><td>ICS Inc.</td><td>?</td><td>2024-06-25</td><td>2025-06-25</td></tr>
+      <tr><td>6500008671.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$8,697.85</td><td class='numeric'>$7,521.83</td><td class='numeric'>$1,176.02</td><td class='numeric'>86.48%</td><td>ICS Inc.</td><td>?</td><td>2024-06-27</td><td>2025-06-27</td></tr>
+      <tr><td>6500008647.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$3,500.00</td><td class='numeric'>$3,204.28</td><td class='numeric'>$295.72</td><td class='numeric'>91.55%</td><td>ICS Inc.</td><td>?</td><td>2024-06-26</td><td>2025-06-26</td></tr>
+      <tr><td>6500008670.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$12,902.20</td><td class='numeric'>$9,073.57</td><td class='numeric'>$3,828.63</td><td class='numeric'>70.33%</td><td>ICS Inc.</td><td>?</td><td>2024-06-27</td><td>2025-06-27</td></tr>
+      <tr><td>6500008637.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$4,437.24</td><td class='numeric'>$4,132.39</td><td class='numeric'>$304.85</td><td class='numeric'>93.13%</td><td>ICS Inc.</td><td>?</td><td>2024-06-26</td><td>2025-06-26</td></tr>
+      <tr><td>6500008636.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$106,940.18</td><td class='numeric'>$106,740.15</td><td class='numeric'>$200.03</td><td class='numeric'>99.81%</td><td>ICS Inc.</td><td>?</td><td>2024-06-26</td><td>2025-06-26</td></tr>
+      <tr><td>6500008618.00001</td><td><span class='status-badge status-imported'>Imported</span></td><td class='numeric'>$76,506.88</td><td class='numeric'>$76,295.24</td><td class='numeric'>$211.64</td><td class='numeric'>99.72%</td><td>ICS Inc.</td><td>?</td><td>2024-06-25</td><td>2025-06-25</td></tr>
+      <tr><td>6500008548.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$31,934.13</td><td class='numeric'>$31,934.13</td><td class='numeric'>$0.00</td><td class='numeric'>100.00%</td><td>ICS Inc.</td><td>?</td><td>2024-06-20</td><td>2025-06-20</td></tr>
+      <tr><td>6500008557.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$159,837.61</td><td class='numeric'>$0.00</td><td class='numeric'>$159,837.61</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-06-21</td><td>2025-06-21</td></tr>
+      <tr><td>6500008563.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000.00</td><td class='numeric'>$3,439.03</td><td class='numeric'>$1,560.97</td><td class='numeric'>68.78%</td><td>ICS Inc.</td><td>?</td><td>2024-06-21</td><td>2025-06-21</td></tr>
+      <tr><td>6500008546.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$21,191.38</td><td class='numeric'>$759.15</td><td class='numeric'>$20,432.23</td><td class='numeric'>3.58%</td><td>ICS Inc.</td><td>?</td><td>2024-06-20</td><td>2025-06-20</td></tr>
+      <tr><td>6500008599.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$23,663.43</td><td class='numeric'>$1,336.86</td><td class='numeric'>$22,326.57</td><td class='numeric'>5.65%</td><td>ICS Inc.</td><td>?</td><td>2024-06-24</td><td>2025-06-24</td></tr>
+      <tr><td>6500011115.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$4,250,000.00</td><td class='numeric'>$1,708,394.42</td><td class='numeric'>$2,541,605.58</td><td class='numeric'>40.20%</td><td>ICS Inc.</td><td>?</td><td>2025-01-01</td><td>2026-04-01</td></tr>
+      <tr><td>6500011116.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$4,000,000.00</td><td class='numeric'>$1,074,809.60</td><td class='numeric'>$2,925,190.40</td><td class='numeric'>26.87%</td><td>ICS Inc.</td><td>?</td><td>2025-01-01</td><td>2026-04-01</td></tr>
+      <tr><td>6500011114.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$5,000,000.00</td><td class='numeric'>$3,085,907.88</td><td class='numeric'>$1,914,092.12</td><td class='numeric'>61.72%</td><td>ICS Inc.</td><td>?</td><td>2025-01-01</td><td>2026-04-01</td></tr>
+      <tr><td>6500011017.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$6,200.00</td><td class='numeric'>$5,427.78</td><td class='numeric'>$772.22</td><td class='numeric'>87.54%</td><td>ICS Inc.</td><td>?</td><td>2024-11-12</td><td>2025-11-12</td></tr>
+      <tr><td>6500010859.00001</td><td><span class='status-badge status-rejected'>Rejected</span></td><td class='numeric'>$2,270.98</td><td class='numeric'>$0.00</td><td class='numeric'>$2,270.98</td><td class='numeric'>0.00%</td><td>ICS Inc.</td><td>?</td><td>2024-11-06</td><td>2025-11-06</td></tr>
+      <tr><td>6500011168.00001</td><td><span class='status-badge status-processing'>Processing</span></td><td class='numeric'>$6,000.00</td><td class='numeric'>$5,754.33</td><td class='numeric'>$245.67</td><td class='numeric'>95.91%</td><td>ICS Inc.</td><td>?</td><td>2024-11-13</td><td>2025-11-13</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="footer-note">Extract generated from supabase/excel_seed.sql · 100 rows</div>
+    </main>
+  </div>
+</body>
+</html>

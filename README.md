@@ -43,6 +43,6 @@ AESTrak is a purchase order tracking platform for construction teams, built on N
 
 ## Next Steps
 
-- Build Supabase migrations for purchase orders and quantity surveys.
-- Implement authentication and multi-tenant organization flows.
 - Wire Excel import processing and dashboard visualizations per the project context.
+- Build PO/QS list + detail pages backed by Supabase queries.
+- Seed representative PO/QS data and expand automated tests across imports and alerts.

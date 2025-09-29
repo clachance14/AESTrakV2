@@ -18,10 +18,10 @@ Legend: `[ ]` open, `[x]` complete. Update entries as work progresses.
 
 ### Authentication & Organizations
 
-- [ ] Build login/signup/invite routes with Supabase Auth (`product/feature-briefs/settings.md`).
-- [ ] Implement organization membership management (admin/member roles).
-- [ ] Enforce middleware for authenticated routes (`architecture/site-map.md`).
-- [ ] Create audit logging for invites and role changes (`data-dictionary` → `audit_logs`).
+- [x] Build login/signup/invite routes with Supabase Auth (`product/feature-briefs/settings.md`).
+- [x] Implement organization membership management (admin/member roles).
+- [x] Enforce middleware for authenticated routes (`architecture/site-map.md`).
+- [x] Create audit logging for invites and member removals (`data-dictionary` → `audit_logs`).
 
 ### Purchase Orders
 
@@ -58,9 +58,9 @@ Legend: `[ ]` open, `[x]` complete. Update entries as work progresses.
 
 ### Settings
 
-- [ ] Build profile settings page (display name, MFA toggle placeholders).
-- [ ] Build organization settings (invite, role change, deactivate) (`feature-briefs/settings.md`).
-- [ ] Show billing placeholder messaging with manual instructions.
+- [x] Build profile settings page (display name, MFA toggle placeholders).
+- [x] Build organization settings (invite, deactivate) (`feature-briefs/settings.md`).
+- [x] Show billing placeholder messaging with manual instructions.
 
 ### Quality & Ops
 

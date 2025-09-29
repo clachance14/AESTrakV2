@@ -19,7 +19,7 @@ Use this checklist before submitting a PR or promoting a build to higher environ
 - [ ] Alerts: trigger utilization thresholds (via fixtures or mock data) and verify acknowledgment flow + audit logs.
 - [ ] Purchase Orders: confirm list filters, detail drill-down, and export (if touched).
 - [ ] Quantity Surveys: filter by date/vendor, verify detail page context and import provenance.
-- [ ] Settings: test invite flow (admin), role changes, profile updates, and billing placeholder messaging.
+- [ ] Settings: test invite flow (admin), member removals (ensure audit logs captured), profile updates, and billing placeholder messaging.
 
 ## Accessibility & UX
 
@@ -30,7 +30,7 @@ Use this checklist before submitting a PR or promoting a build to higher environ
 ## Data & Integrity
 
 - [ ] RLS policies exercised via Supabase tests or manual queries (ensure no data leakage across orgs).
-- [ ] Audit logs recorded for critical actions (imports, alert acknowledgments, role changes).
+- [ ] Audit logs recorded for critical actions (imports, alert acknowledgments, member removals).
 - [ ] Background jobs (import processing, alert evaluation) complete without errors in logs.
 
 ## Documentation & Communication

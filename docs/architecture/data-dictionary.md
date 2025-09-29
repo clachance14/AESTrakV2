@@ -153,20 +153,21 @@ _Last updated: 2024-07-18_
 
 ### audit_logs
 
-| Column            | Type          | Description                                              |
-| ----------------- | ------------- | -------------------------------------------------------- |
-| `id`              | `uuid` (PK)   | Audit row identifier.                                    |
-| `organization_id` | `uuid`        | Tenant scope.                                            |
-| `entity_type`     | `text`        | `purchase_order`, `quantity_survey`, `alert`, etc.       |
-| `entity_id`       | `uuid`        | Target entity reference.                                 |
-| `action`          | `text`        | `created`, `updated`, `acknowledged`, `imported`.        |
-| `before`          | `jsonb`       | Snapshot of key fields prior to change (null on create). |
-| `after`           | `jsonb`       | Snapshot after change.                                   |
-| `acted_by`        | `uuid`        | User performing action.                                  |
-| `acted_at`        | `timestamptz` | Timestamp.                                               |
-| `context`         | `jsonb`       | Additional metadata (IP, job id).                        |
+| Column            | Type          | Description                                                                        |
+| ----------------- | ------------- | ---------------------------------------------------------------------------------- |
+| `id`              | `uuid` (PK)   | Audit row identifier.                                                              |
+| `organization_id` | `uuid`        | Tenant scope.                                                                      |
+| `entity_type`     | `text`        | `purchase_order`, `quantity_survey`, `alert`, etc.                                 |
+| `entity_id`       | `uuid`        | Target entity reference.                                                           |
+| `action`          | `text`        | `created`, `updated`, `acknowledged`, `invite_sent`, `member_removed`, `imported`. |
+| `before`          | `jsonb`       | Snapshot of key fields prior to change (null on create).                           |
+| `after`           | `jsonb`       | Snapshot after change.                                                             |
+| `acted_by`        | `uuid`        | User performing action.                                                            |
+| `acted_at`        | `timestamptz` | Timestamp.                                                                         |
+| `context`         | `jsonb`       | Additional metadata (IP, job id).                                                  |
 
 - **RLS**: Admins access full logs; members can read entries tied to entities they own. No direct writes from clients—only server actions/Edge functions insert rows.
+- **Phase 1**: Auth flows append invite and member removal audit entries via server actions to support organization access history.
 
 ### subscriptions (Post-production)
 

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import type { ValidationError, ValidationResult } from '@/features/imports/types';
 
 import { formatExcelDate, formatExcelNumber, cleanExcelText } from './excel-parser';

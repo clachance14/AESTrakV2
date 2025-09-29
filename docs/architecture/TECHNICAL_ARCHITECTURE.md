@@ -47,6 +47,7 @@ src/app/
 
 - Shared layout handles auth check, organization context provider, global toasts.
 - Route groups may be used for role gating (`(admin)`, `(controller)`), but MVP leverages runtime guards/higher-order components.
+- Current implementation (Phase 1) uses `middleware.ts` for coarse auth redirect logic and server components (`getActiveOrganization`) to enforce admin-only routes like `/settings/organization`.
 
 ### 3.2 Feature Module Boundaries
 
@@ -57,6 +58,7 @@ src/app/
 - `src/features/imports`: Multi-step import wizard, validation hooks, progress indicators.
 - `src/features/dashboard`: KPI cards, charts, saved filter logic.
 - `src/features/alerts`: Alert list, acknowledgment, email templates (React Email) and Resend dispatchers.
+- `src/features/settings`: Profile form, billing placeholder, shared settings navigation components.
 - `src/features/billing` (nested under auth/settings): Placeholder screens for future Stripe checkout, customer portal, and seat management.
 - `src/components/ui`: Shared primitives (buttons, tables, form inputs, modals) consistent with shadcn/ui.
 - `src/libs`: Supabase client factory, analytics wrapper, Excel parsing utilities, date/number helpers, feature flag toggles.

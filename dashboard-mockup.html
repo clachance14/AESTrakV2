@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AESTrak Dashboard - Dow PO Management Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Header Bar */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .header-nav a {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .header-nav a.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-bell {
+            position: relative;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .alert-bell:hover {
+            background: #f1f5f9;
+        }
+
+        .alert-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        /* Main Dashboard Container */
+        .dashboard {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Critical Alerts Bar - ALWAYS VISIBLE */
+        .critical-alerts-bar {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fecaca;
+            border-left: 4px solid #ef4444;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .critical-alerts-bar.hidden {
+            display: none;
+        }
+
+        .alert-icon {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .critical-alerts-content {
+            flex: 1;
+        }
+
+        .critical-alerts-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 0.25rem;
+        }
+
+        .critical-alerts-list {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .critical-alert-item {
+            background: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .critical-alert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        /* Top Metrics Row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .metric-card.primary::before { background: #3b82f6; }
+        .metric-card.success::before { background: #10b981; }
+        .metric-card.warning::before { background: #f59e0b; }
+        .metric-card.danger::before { background: #ef4444; }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .metric-change.positive { color: #10b981; }
+        .metric-change.negative { color: #ef4444; }
+
+        /* Risk Distribution Visual */
+        .risk-distribution {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .risk-bars {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .risk-bar {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .risk-bar:hover {
+            transform: translateY(-4px);
+        }
+
+        .risk-bar-fill {
+            height: 120px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-bar-fill.safe { background: #f0fdf4; }
+        .risk-bar-fill.warning { background: #fef3c7; }
+        .risk-bar-fill.critical { background: #fed7aa; }
+        .risk-bar-fill.overspent { background: #fee2e2; }
+
+        .risk-bar-inner {
+            width: 100%;
+            transition: height 0.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .risk-bar-inner.safe { background: #10b981; }
+        .risk-bar-inner.warning { background: #f59e0b; }
+        .risk-bar-inner.critical { background: #fb923c; }
+        .risk-bar-inner.overspent { background: #ef4444; }
+
+        .risk-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .risk-sublabel {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Main Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Spending Trend Chart */
+        .chart-container {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-period-btn {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-period-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .chart-area {
+            height: 300px;
+            background: linear-gradient(180deg, #f8fafc 0%, white 100%);
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Top Spending POs */
+        .top-spending {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .po-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .po-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .po-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transform: translateX(4px);
+        }
+
+        .po-item-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .po-rank {
+            font-weight: 700;
+            color: #64748b;
+            font-size: 0.875rem;
+            width: 24px;
+        }
+
+        .po-details {
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .po-number {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .po-vendor {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .po-utilization {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .po-percent {
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .po-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #e2e8f0;
+            margin-top: 0.25rem;
+        }
+
+        .po-line-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .po-line-info {
+            flex: 1;
+        }
+
+        .po-line-info strong {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.125rem;
+        }
+
+        .po-line-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .po-line-qs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .po-line-remaining {
+            font-size: 0.75rem;
+            color: #0f172a;
+        }
+
+        .po-badge {
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .po-badge.critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .po-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .po-badge.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .po-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .po-badge.overspent {
+            background: #ef4444;
+            color: white;
+        }
+
+        .po-inspector {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .po-inspector-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .po-selector {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .po-selector-header {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .po-selector-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .po-selector-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            background: white;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .po-selector-item.active {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 16px -6px rgb(59 130 246 / 0.25);
+        }
+
+        .po-selector-item strong {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .po-selector-item span {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .po-detail-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .po-detail-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .po-detail-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .po-detail-header p {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .po-detail-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+
+        .po-detail-table th,
+        .po-detail-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .po-detail-table th {
+            background: #f8fafc;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .po-line-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .po-line-status.warning { background: #fef3c7; color: #92400e; }
+        .po-line-status.critical { background: #fee2e2; color: #991b1b; }
+        .po-line-status.safe { background: #dcfce7; color: #166534; }
+
+        /* Bottom Section */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 2rem;
+        }
+
+        /* Recent Activity Table */
+        .activity-table {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table {
+            width: 100%;
+            font-size: 0.875rem;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table tr:hover {
+            background: #f8fafc;
+        }
+
+        .amount-positive {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .time-ago {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+
+        /* Quick Actions Panel */
+        .quick-actions {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 0.375rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .action-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .action-icon {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Live Update Indicator */
+        .live-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1280px) {
+            .metrics-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .po-inspector-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-row {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .risk-bars {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .po-line-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .po-line-qs {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">AESTrak</div>
+            <nav class="header-nav">
+                <a href="#" class="active">Dashboard</a>
+                <a href="po-overview.html">Dow POs</a>
+                <a href="#">QS Billings</a>
+                <a href="#">Reports</a>
+                <a href="#">Settings</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="alert-bell">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2a6 6 0 0 0-6 6v3.586l-.707.707A1 1 0 0 0 4 14h12a1 1 0 0 0 .707-1.707L16 11.586V8a6 6 0 0 0-6-6z" fill="#64748b"/>
+                    <path d="M10 18a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2z" fill="#64748b"/>
+                </svg>
+                <span class="alert-badge">12</span>
+            </div>
+            <div style="padding: 0.5rem 1rem; background: #f1f5f9; border-radius: 999px; font-size: 0.875rem;">
+                BuildTech Contractors Inc.
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard">
+        <!-- Critical Alerts Bar - This is what catches attention immediately -->
+        <div class="critical-alerts-bar">
+            <div class="alert-icon">⚠️</div>
+            <div class="critical-alerts-content">
+                <div class="critical-alerts-title">Critical attention required - Dow POs near authorization limits</div>
+                <div class="critical-alerts-list">
+                    <div class="critical-alert-item">
+                        <strong>DOW-PO-089</strong> - Exceeded authorization by $54,000 (112%)
+                    </div>
+                    <div class="critical-alert-item">
+                        <strong>DOW-PO-045</strong> - 95% billed, $9k remaining authorization
+                    </div>
+                    <div class="critical-alert-item">
+                        <strong>DOW-PO-112</strong> - 89% billed, $15k remaining authorization
+                    </div>
+                </div>
+            </div>
+            <button style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-weight: 500;">
+                View All Alerts
+            </button>
+        </div>
+
+        <!-- Top Metrics Row -->
+        <div class="metrics-row">
+            <div class="metric-card primary">
+                <div class="metric-label">Active Dow POs</div>
+                <div class="metric-value">98</div>
+                <div class="metric-change positive">
+                    <span>↑</span>
+                    <span>3 new this week</span>
+                </div>
+            </div>
+
+            <div class="metric-card success">
+                <div class="metric-label">Total Authorization</div>
+                <div class="metric-value">$5.2M</div>
+                <div class="metric-change positive">
+                    <span>85% allocated work</span>
+                </div>
+            </div>
+
+            <div class="metric-card warning">
+                <div class="metric-label">Submitted Billings</div>
+                <div class="metric-value">$3.8M</div>
+                <div class="metric-change negative">
+                    <span>↑</span>
+                    <span>$125k billed today</span>
+                </div>
+            </div>
+
+            <div class="metric-card danger">
+                <div class="metric-label">At Risk</div>
+                <div class="metric-value">25</div>
+                <div class="metric-change negative">
+                    <span>↑</span>
+                    <span>5 since yesterday</span>
+                </div>
+            </div>
+
+            <div class="metric-card primary">
+                <div class="metric-label">Line Items Without QS</div>
+                <div class="metric-value">1</div>
+                <div class="metric-change negative">
+                    <span>Across 1 active PO</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Distribution Visual -->
+        <div class="risk-distribution">
+            <div class="section-title">
+                PO Risk Distribution
+                <span class="section-subtitle">Click to filter Dow POs by billing status</span>
+            </div>
+            <div class="risk-bars">
+                <div class="risk-bar">
+                    <div class="risk-bar-fill safe">
+                        <div class="risk-bar-inner safe" style="height: 45%;">
+                            45
+                        </div>
+                    </div>
+                    <div class="risk-label">On Track</div>
+                    <div class="risk-sublabel">&lt; 75% billed</div>
+                </div>
+
+                <div class="risk-bar">
+                    <div class="risk-bar-fill warning">
+                        <div class="risk-bar-inner warning" style="height: 30%;">
+                            30
+                        </div>
+                    </div>
+                    <div class="risk-label">Monitor</div>
+                    <div class="risk-sublabel">75-89% billed</div>
+                </div>
+
+                <div class="risk-bar">
+                    <div class="risk-bar-fill critical">
+                        <div class="risk-bar-inner critical" style="height: 20%;">
+                            20
+                        </div>
+                    </div>
+                    <div class="risk-label">Critical</div>
+                    <div class="risk-sublabel">90-99% billed</div>
+                </div>
+
+                <div class="risk-bar">
+                    <div class="risk-bar-fill overspent">
+                        <div class="risk-bar-inner overspent" style="height: 5%;">
+                            3
+                        </div>
+                    </div>
+                    <div class="risk-label">Over Auth</div>
+                    <div class="risk-sublabel">≥ 100% billed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PO Detail Inspector -->
+        <div class="po-inspector">
+            <div class="section-title">
+                PO Detail Viewer
+                <span class="section-subtitle">Inspect Dow POs and line items side-by-side</span>
+            </div>
+            <div class="po-inspector-layout">
+                <div class="po-selector">
+                    <div class="po-selector-header">
+                        <span>Dow POs</span>
+                        <span>98 active</span>
+                    </div>
+                    <div class="po-selector-list">
+                        <div class="po-selector-item active">
+                            <strong>DOW-PO-089</strong>
+                            <span>Unit 3 Reactor Rebuild · 3 line items</span>
+                        </div>
+                        <div class="po-selector-item">
+                            <strong>DOW-PO-045</strong>
+                            <span>Steel Structure Installation · 1 line item</span>
+                        </div>
+                        <div class="po-selector-item">
+                            <strong>DOW-PO-112</strong>
+                            <span>Concrete Foundation Work · 1 line item</span>
+                        </div>
+                        <div class="po-selector-item">
+                            <strong>DOW-PO-203</strong>
+                            <span>HVAC System Upgrade · 2 line items</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="po-detail-card">
+                    <div class="po-detail-header">
+                        <h3>DOW-PO-089 · Unit 3 Reactor Rebuild</h3>
+                        <p>Authorization $450,000 · Billed $504,200 · Remaining -$54,200</p>
+                    </div>
+                    <div class="po-detail-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Line</th>
+                                    <th>Description</th>
+                                    <th>Authorized</th>
+                                    <th>Billed to Date</th>
+                                    <th>Variance</th>
+                                    <th>Status</th>
+                                    <th>Latest QS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>001</td>
+                                    <td>Labor</td>
+                                    <td>$180,000</td>
+                                    <td>$205,000</td>
+                                    <td>- $25,000</td>
+                                    <td><span class="po-line-status critical">Over Auth</span></td>
+                                    <td>QS-45678-L · May 12</td>
+                                </tr>
+                                <tr>
+                                    <td>002</td>
+                                    <td>Material</td>
+                                    <td>$160,000</td>
+                                    <td>$165,000</td>
+                                    <td>- $5,000</td>
+                                    <td><span class="po-line-status warning">Monitor</span></td>
+                                    <td>QS-45668-M · Apr 28</td>
+                                </tr>
+                                <tr>
+                                    <td>003</td>
+                                    <td>Equipment</td>
+                                    <td>$110,000</td>
+                                    <td>$134,000</td>
+                                    <td>- $24,000</td>
+                                    <td><span class="po-line-status critical">Over Auth</span></td>
+                                    <td>QS-45660-E · Mar 30</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Spending Trend Chart -->
+            <div class="chart-container">
+                <div class="section-title">
+                    Billing Trend
+                    <div class="chart-controls">
+                        <button class="chart-period-btn">7D</button>
+                        <button class="chart-period-btn active">30D</button>
+                        <button class="chart-period-btn">90D</button>
+                    </div>
+                </div>
+                <div class="chart-area">
+                    <!-- This would be the Recharts component -->
+                    <div style="text-align: center; color: #64748b;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
+                        <div>Interactive billing submission trend</div>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem;">
+                            Daily: $125k avg billing | Total: $3.8M submitted | Projected: $4.5M by month end
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Billing POs -->
+            <div class="top-spending">
+                <div class="section-title">
+                    Top Billing POs
+                    <a href="#" style="font-size: 0.875rem; color: #3b82f6; text-decoration: none;">View All →</a>
+                </div>
+                <div class="po-list">
+                    <div class="po-item">
+                        <div class="po-item-header">
+                            <div class="po-rank">#1</div>
+                            <div class="po-details">
+                                <div class="po-number">DOW-PO-089</div>
+                                <div class="po-vendor">Unit 3 Reactor Rebuild</div>
+                            </div>
+                            <div class="po-utilization">
+                                <div class="po-percent">112%</div>
+                                <div class="po-badge overspent">OVER AUTH</div>
+                            </div>
+                        </div>
+                        <div class="po-lines">
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Labor</strong>
+                                    <div class="po-line-meta">Authorized $180k · Billed $205k</div>
+                                    <div class="po-line-remaining">-$25k over authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45678-L (May)</span>
+                                    <div class="po-badge overspent">OVER AUTH</div>
+                                </div>
+                            </div>
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Material</strong>
+                                    <div class="po-line-meta">Authorized $160k · Billed $165k</div>
+                                    <div class="po-line-remaining">-$5k over authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45668-M (Apr)</span>
+                                    <div class="po-badge critical">CRITICAL</div>
+                                </div>
+                            </div>
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Equipment</strong>
+                                    <div class="po-line-meta">Authorized $110k · Billed $134k</div>
+                                    <div class="po-line-remaining">-$24k over authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45660-E (Mar)</span>
+                                    <div class="po-badge overspent">OVER AUTH</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-item">
+                        <div class="po-item-header">
+                            <div class="po-rank">#2</div>
+                            <div class="po-details">
+                                <div class="po-number">DOW-PO-045</div>
+                                <div class="po-vendor">Steel Structure Installation</div>
+                            </div>
+                            <div class="po-utilization">
+                                <div class="po-percent">95%</div>
+                                <div class="po-badge critical">CRITICAL</div>
+                            </div>
+                        </div>
+                        <div class="po-lines">
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Labor</strong>
+                                    <div class="po-line-meta">Authorized $190k · Billed $181k</div>
+                                    <div class="po-line-remaining">$9k remaining authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45677 (Apr)</span>
+                                    <div class="po-badge critical">CRITICAL</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-item">
+                        <div class="po-item-header">
+                            <div class="po-rank">#3</div>
+                            <div class="po-details">
+                                <div class="po-number">DOW-PO-112</div>
+                                <div class="po-vendor">Concrete Foundation Work</div>
+                            </div>
+                            <div class="po-utilization">
+                                <div class="po-percent">89%</div>
+                                <div class="po-badge warning">MONITOR</div>
+                            </div>
+                        </div>
+                        <div class="po-lines">
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Labor</strong>
+                                    <div class="po-line-meta">Authorized $140k · Billed $125k</div>
+                                    <div class="po-line-remaining">$15k remaining authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45676 (Apr)</span>
+                                    <div class="po-badge warning">MONITOR</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-item">
+                        <div class="po-item-header">
+                            <div class="po-rank">#4</div>
+                            <div class="po-details">
+                                <div class="po-number">DOW-PO-078</div>
+                                <div class="po-vendor">Electrical Infrastructure</div>
+                            </div>
+                            <div class="po-utilization">
+                                <div class="po-percent">68%</div>
+                                <div class="po-badge warning">MONITOR</div>
+                            </div>
+                        </div>
+                        <div class="po-lines">
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Labor</strong>
+                                    <div class="po-line-meta">Authorized $150k · Billed $129k</div>
+                                    <div class="po-line-remaining">$21k remaining authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45675 (Mar)</span>
+                                    <div class="po-badge warning">MONITOR</div>
+                                </div>
+                            </div>
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Equipment</strong>
+                                    <div class="po-line-meta">Authorized $40k · Billed $0</div>
+                                    <div class="po-line-remaining">Awaiting initial QS</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>No QS submitted</span>
+                                    <div class="po-badge danger">PENDING</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="po-item">
+                        <div class="po-item-header">
+                            <div class="po-rank">#5</div>
+                            <div class="po-details">
+                                <div class="po-number">DOW-PO-203</div>
+                                <div class="po-vendor">HVAC System Upgrade</div>
+                            </div>
+                            <div class="po-utilization">
+                                <div class="po-percent">83%</div>
+                                <div class="po-badge warning">MONITOR</div>
+                            </div>
+                        </div>
+                        <div class="po-lines">
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Labor</strong>
+                                    <div class="po-line-meta">Authorized $175k · Billed $142k</div>
+                                    <div class="po-line-remaining">$33k remaining authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45650 (Mar)</span>
+                                    <div class="po-badge warning">MONITOR</div>
+                                </div>
+                            </div>
+                            <div class="po-line-item">
+                                <div class="po-line-info">
+                                    <strong>Equipment</strong>
+                                    <div class="po-line-meta">Authorized $95k · Billed $83k</div>
+                                    <div class="po-line-remaining">$12k remaining authorization</div>
+                                </div>
+                                <div class="po-line-qs">
+                                    <span>Latest QS: QS-45659 (Feb)</span>
+                                    <div class="po-badge warning">MONITOR</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-grid">
+            <!-- Recent Activity -->
+            <div class="activity-table">
+                <div class="section-title">
+                    Recent QS Billings
+                    <span class="section-subtitle">Last 24 hours submissions</span>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Dow PO</th>
+                            <th>Line Item / Cost Code</th>
+                            <th>Project/Work Package</th>
+                            <th>QS Billing</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="time-ago">2 min ago</td>
+                            <td><strong>DOW-PO-089</strong></td>
+                            <td>Labor</td>
+                            <td>Unit 3 Reactor Rebuild</td>
+                            <td>QS-45678-L</td>
+                            <td class="amount-positive">+$15,250</td>
+                        </tr>
+                        <tr>
+                            <td class="time-ago">15 min ago</td>
+                            <td><strong>DOW-PO-045</strong></td>
+                            <td>Labor</td>
+                            <td>Steel Structure Installation</td>
+                            <td>QS-45677</td>
+                            <td class="amount-positive">+$8,500</td>
+                        </tr>
+                        <tr>
+                            <td class="time-ago">1 hour ago</td>
+                            <td><strong>DOW-PO-112</strong></td>
+                            <td>Labor</td>
+                            <td>Concrete Foundation Work</td>
+                            <td>QS-45676</td>
+                            <td class="amount-positive">+$22,000</td>
+                        </tr>
+                        <tr>
+                            <td class="time-ago">2 hours ago</td>
+                            <td><strong>DOW-PO-078</strong></td>
+                            <td>Labor</td>
+                            <td>Electrical Infrastructure</td>
+                            <td>QS-45675</td>
+                            <td class="amount-positive">+$5,750</td>
+                        </tr>
+                        <tr>
+                            <td class="time-ago">3 hours ago</td>
+                            <td><strong>DOW-PO-156</strong></td>
+                            <td>Equipment</td>
+                            <td>Piping & Instrumentation</td>
+                            <td>QS-45674</td>
+                            <td class="amount-positive">+$3,200</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="section-title">Quick Actions</div>
+                <div class="action-buttons">
+                    <button class="action-btn primary">
+                        <div class="action-icon">📊</div>
+                        Export to Excel
+                    </button>
+                    <button class="action-btn">
+                        <div class="action-icon">📈</div>
+                        Trend Analysis
+                    </button>
+                    <button class="action-btn">
+                        <div class="action-icon">📋</div>
+                        Variance Report
+                    </button>
+                    <button class="action-btn">
+                        <div class="action-icon">🔮</div>
+                        View Projections
+                    </button>
+                    <button class="action-btn">
+                        <div class="action-icon">🔍</div>
+                        Advanced Search
+                    </button>
+                    <button class="action-btn">
+                        <div class="action-icon">⚙️</div>
+                        Alert Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Update Indicator -->
+    <div class="live-indicator">
+        <div class="live-dot"></div>
+        <span>Live updating every 30s</span>
+    </div>
+
+    <!-- Design Notes Section -->
+    <div style="position: fixed; bottom: 0; left: 0; background: #1e293b; color: white; padding: 1rem 2rem; font-size: 0.75rem; font-family: monospace; opacity: 0.8; width: 100%; border-top: 2px solid #3b82f6;">
+        <strong>📋 DESIGN MOCKUP - CONSTRUCTION COMPANY PERSPECTIVE:</strong> This dashboard shows BuildTech Contractors tracking their billings against Dow Chemical POs.
+        Key flow: Dow issues POs → Construction company submits QS billings → Track spending against authorization limits.
+        <strong>Context:</strong> "On Track" (under 75% billed), "Monitor" (75-89%), "Critical" (90-99%), "Over Auth" (exceeded authorization).
+        <strong>Color scheme:</strong> Red=#ef4444 (over auth), Orange=#fb923c (critical), Yellow=#f59e0b (monitor), Green=#10b981 (on track), Blue=#3b82f6 (primary).
+    </div>
+</body>
+</html>

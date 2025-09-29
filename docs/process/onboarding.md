@@ -25,6 +25,7 @@ Help new contributors reach “first PR” quickly with a consistent environment
 2. **Environment variables**
    - Copy `.env.example` to `.env.local`.
    - Populate required fields: `NEXT_PUBLIC_APP_URL`, Supabase URL/anon key, service role key, JWT secret, project ref, DB URL (pooled), Resend API key.
+   - `NEXT_PUBLIC_APP_URL` must match the origin the auth routes run on (used for Supabase invite redirects in `/invite`).
    - Optional: set `SUPABASE_ACCESS_TOKEN` locally for CLI actions and analytics IDs for Vercel.
    - Post-production: add Stripe secrets when billing automation launches.
 3. **Supabase local resources**

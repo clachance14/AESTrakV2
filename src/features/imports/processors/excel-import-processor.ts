@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { parseExcelFile, validateExcelSchema } from '@/libs/excel-parser';
 import {
   EXPECTED_PO_COLUMNS,

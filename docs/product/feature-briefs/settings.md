@@ -15,8 +15,17 @@ _Last updated: 2024-07-18_
 ## Scope & Key Scenarios
 
 - Profile tab: update display name, timezone, MFA preference, notification settings.
-- Organization tab (admin-only): view members, invite new users, change roles (admin/member), deactivate accounts.
+- Organization tab (admin-only): view members, invite new users, deactivate accounts.
 - Billing tab (admin-only): present manual billing instructions pre-Stripe, show plan tier and seat usage, display “coming soon” Stripe portal section.
+
+## Current Implementation Snapshot (Phase 1)
+
+- `/settings/profile` supports editing display name, optional phone, and timezone (persisted to `user_profiles` and Supabase auth metadata).
+- `/settings/organization` is live with invite form, member roster table, and removal flows backed by Supabase `organization_members` and `audit_logs`.
+- `/settings/billing` shows current plan info and manual invoicing instructions while Stripe portal remains disabled.
+- Admin-only access enforcement ships via middleware + server-side guard; non-admins are redirected to `/settings/profile`.
+- Invite flow sends Supabase transactional email and records `invite_sent` + `member_removed` actions in `audit_logs`.
+- Profile and billing tabs remain as placeholders; follow-up tasks will flesh out profile editing UI and manual billing content.
 
 ## Routes & Components
 
@@ -27,17 +36,17 @@ _Last updated: 2024-07-18_
 ## Data & Integrations
 
 - Tables: `organization_members`, `organizations`, `user_profiles`, `subscriptions` (post-production), `audit_logs`.
-- Background jobs: Invitation emails triggered via Resend; audit logging for role changes.
+- Background jobs: Invitation emails triggered via Resend; audit logging captures invitations and removals.
 - Feature flags: Billing tab gated behind post-production flag; show manual instructions until automation ships.
 
 ## Analytics & Alerts
 
-- Events: `settings.profile.updated`, `settings.invite.sent`, `settings.role.changed`, `settings.billing.viewed`.
+- Events: `settings.profile.updated`, `settings.invite.sent`, `settings.member.removed`, `settings.billing.viewed`.
 - Emails: Invite emails via Resend; optional admin notifications for seat limit approaches.
 
 ## Testing
 
-- Unit tests: form validation helpers, role change components, billing placeholder message states.
+- Unit tests: profile form validation helpers, invite/removal flows, billing placeholder message states.
 - Integration tests: invite flow (mock Supabase + email), update profile and confirm persisted data, ensure members cannot access admin-only routes.
 - Fixtures: mock member list and invitation payloads under `tests/fixtures/settings.json` (to create).
 

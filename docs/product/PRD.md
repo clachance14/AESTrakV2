@@ -157,7 +157,7 @@ _Last updated: 2024-07-18_
 - Organization creation, invitations, and role assignment limited to Admin and Member.
 - MFA recommended (TotP or email OTP) and enforced for Admins in Enterprise tier.
 - Middleware guarding App Router segments; redirect unauthenticated users to login.
-- Audit trail of user invites, role changes, and sign-ins.
+- Audit trail of user invites, removals, and sign-ins.
 
 ### 7.2 Purchase Orders (`src/features/purchase-orders`)
 
