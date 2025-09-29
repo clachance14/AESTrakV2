@@ -6,6 +6,8 @@ import { SettingsTabs } from '@/features/settings/components/settings-tabs';
 import { ProfileForm } from '@/features/settings/profile/profile-form';
 import { getCurrentUserProfile } from '@/features/settings/profile/queries';
 
+export const runtime = 'nodejs';
+
 export const metadata: Metadata = {
   title: 'Profile settings – AESTrak',
 };

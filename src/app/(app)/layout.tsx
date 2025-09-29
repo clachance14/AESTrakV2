@@ -5,6 +5,8 @@ import type { ReactNode } from 'react';
 import { signOutAction } from '@/features/auth/actions';
 import { getActiveOrganization } from '@/features/organizations/queries';
 
+export const runtime = 'nodejs';
+
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const activeContext = await getActiveOrganization();
 

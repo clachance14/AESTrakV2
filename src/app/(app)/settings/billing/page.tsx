@@ -5,6 +5,8 @@ import { getActiveOrganization } from '@/features/organizations/queries';
 import { SettingsTabs } from '@/features/settings/components/settings-tabs';
 import { getSupabaseServiceRoleClient } from '@/libs/supabase/server-client';
 
+export const runtime = 'nodejs';
+
 export const metadata: Metadata = {
   title: 'Billing settings – AESTrak',
 };

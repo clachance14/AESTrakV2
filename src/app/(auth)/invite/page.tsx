@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { AcceptInviteForm } from '@/features/auth/components/accept-invite-form';
 import { AuthShell } from '@/features/auth/components/auth-shell';
 
+export const runtime = 'nodejs';
+
 export const metadata: Metadata = {
   title: 'Accept invitation – AESTrak',
 };
